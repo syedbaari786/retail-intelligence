@@ -145,3 +145,137 @@
                     <input type="range" id="slide-safety" min="10" max="250" value="90">
                 </div>
                 <div class="slider-group">
+                    <div class="slider-label"><span>TRUE DAILY OFF-TAKE</span><span id="label-offtake">45 U/Day</span></div>
+                    <input type="range" id="slide-offtake" min="1" max="100" value="45">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-label"><span>ACTUAL VENDOR CYCLE</span><span id="label-cycle">4 Days</span></div>
+                    <input type="range" id="slide-cycle" min="1" max="10" value="4">
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. EXECUTION CONTROLS -->
+        <button class="inject-btn" onclick="injectParameters()">
+            <i data-lucide="database-zap" style="width:16px; height:16px;"></i>
+            Inject Parameters to ERP Queue
+        </button>
+
+        <div class="payload-console" id="payload-block"></div>
+    </div>
+
+    <footer>
+        <div>Audit Protocol: Maximum Pure Margin Risk Exposure (100% Demand Deflection Model)</div>
+        <div>Calculated Core Margin Matrix: 15.00 AED Retail Unit Valuation × 30.00% Net Profit Floor</div>
+    </footer>
+
+    <script>
+        const ERP_OFFTAKE = 35;
+        const ERP_TRIGGER_POINT = 70;
+        const PRICE = 15;
+        const MARGIN = 0.30;
+        const UNIT_MARGIN = PRICE * MARGIN;
+
+        function runOverlayMath() {
+            const safetyStock = parseInt(document.getElementById('slide-safety').value);
+            const trueOffTake = parseInt(document.getElementById('slide-offtake').value);
+            const vendorCycle = parseInt(document.getElementById('slide-cycle').value);
+
+            document.getElementById('label-safety').innerText = safetyStock + ' U';
+            document.getElementById('label-offtake').innerText = trueOffTake + ' U/Day';
+            document.getElementById('label-cycle').innerText = vendorCycle + ' Days';
+            document.getElementById('field-actual-cycle').innerText = vendorCycle + ' Days';
+
+            const overlayTrigger = trueOffTake * vendorCycle;
+            document.getElementById('val-overlay-trigger').innerText = overlayTrigger + ' U';
+
+            document.getElementById('bar-overlay-trigger').style.width = (overlayTrigger / 500 * 100) + '%';
+            document.getElementById('bar-erp-trigger').style.width = (ERP_TRIGGER_POINT / 500 * 100) + '%';
+
+            const erpRunOutDays = Math.floor(safetyStock / ERP_OFFTAKE);
+            const overlayRunOutDays = Math.floor(safetyStock / trueOffTake);
+
+            document.getElementById('val-erp-runout').innerText = erpRunOutDays + ' Days';
+            document.getElementById('val-overlay-runout').innerText = (overlayRunOutDays <= 0 ? '0 Days (OUT OF STOCK)' : overlayRunOutDays + ' Days');
+
+            document.getElementById('bar-erp-runout').style.width = Math.min((erpRunOutDays / 15 * 100), 100) + '%';
+            document.getElementById('bar-overlay-runout').style.width = Math.min((Math.max(overlayRunOutDays, 0) / 15 * 100), 100) + '%';
+
+            const stateCard = document.getElementById('state-card');
+            const stateTitle = document.getElementById('state-title');
+            const mathLedger = document.getElementById('math-ledger');
+            const financialReadout = document.getElementById('financial-readout');
+
+            if (overlayRunOutDays < vendorCycle) {
+                stateCard.className = "alert-card disconnect";
+                stateTitle.innerHTML = '<i data-lucide="alert-triangle" style="color:var(--metric-red); width:18px; height:18px;"></i> <span style="color:var(--metric-red);">System Disconnect Detected</span>';
+
+                const daysBare = vendorCycle - overlayRunOutDays;
+                const unitsShort = daysBare * trueOffTake;
+                const maxRiskExposure = unitsShort * UNIT_MARGIN;
+
+                mathLedger.innerHTML = `&bull; Net Runway Deficit Duration: ${vendorCycle} Delivery Days - ${overlayRunOutDays} Shelf Runway Days = ${daysBare} Days Bare.<br>&bull; Unfulfilled Consumer Demand: ${daysBare} Days Bare &times; ${trueOffTake} U/Day Active Velocity = ${unitsShort} Units Short.<br>&bull; Audit Chain Vector: ${unitsShort} Units Deficit &times; 15.00 AED Unit Price &times; 30.00% Corporate Gross Margin.`;
+
+                financialReadout.className = "financial-card risk";
+                financialReadout.innerHTML = `<span>MAXIMUM PURE MARGIN RISK EXPOSURE:</span> <span>${maxRiskExposure.toLocaleString('en-AE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} AED</span>`;
+            } else {
+                stateCard.className = "alert-card stable";
+                stateTitle.innerHTML = '<i data-lucide="check-circle" style="color:var(--metric-green); width:18px; height:18px;"></i> <span style="color:var(--metric-green);">Supply Line Stable: Operations Optimized</span>';
+
+                mathLedger.innerHTML = `&bull; Supply Buffer Integrity: Shelf Runway Days (${overlayRunOutDays} Days) cover the full Vendor Fulfillment Lead Time (${vendorCycle} Days).<br>&bull; Zero Shelf Deficit Triggered: On-shelf volume cushions current localized demand patterns perfectly.<br>&bull; Operational Audit Vector: Supply parameters balanced. Risk mitigated.`;
+
+                financialReadout.className = "financial-card optimized";
+                financialReadout.innerHTML = `<span>MAXIMUM PURE MARGIN RISK EXPOSURE:</span> <span>0.00 AED</span>`;
+            }
+            lucide.createIcons();
+        }
+
+        function toggleLog() {
+            const log = document.getElementById('log-block');
+            log.style.display = log.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function injectParameters() {
+            const safetyStock = parseInt(document.getElementById('slide-safety').value);
+            const trueOffTake = parseInt(document.getElementById('slide-offtake').value);
+            const vendorCycle = parseInt(document.getElementById('slide-cycle').value);
+            const overlayTrigger = trueOffTake * vendorCycle;
+            const overlayRunOutDays = Math.floor(safetyStock / trueOffTake);
+
+            let unitsShort = 0;
+            let maxRiskExposure = 0;
+            if (overlayRunOutDays < vendorCycle) {
+                unitsShort = (vendorCycle - overlayRunOutDays) * trueOffTake;
+                maxRiskExposure = unitsShort * UNIT_MARGIN;
+            }
+
+            const payload = {
+                "sku": 44021,
+                "store_id": "DXB_MARINA",
+                "timestamp": new Date().toISOString(),
+                "recommended_parameters": {
+                    "min_stock_trigger_units": overlayTrigger,
+                    "safety_stock_buffer_units": safetyStock
+                },
+                "audit_metrics": {
+                    "detected_shelf_deficit_units": unitsShort,
+                    "margin_risk_mitigated_aed": parseFloat(maxRiskExposure.toFixed(2))
+                }
+            };
+
+            const consoleBlock = document.getElementById('payload-block');
+            consoleBlock.innerText = "// INJECTION STRING GENERATED FOR ERP INGESTION QUEUE:\n\n" + JSON.stringify(payload, null, 2);
+            consoleBlock.style.display = "block";
+        }
+
+        document.getElementById('slide-safety').addEventListener('input', runOverlayMath);
+        document.getElementById('slide-offtake').addEventListener('input', runOverlayMath);
+        document.getElementById('slide-cycle').addEventListener('input', runOverlayMath);
+
+        window.onload = function() {
+            runOverlayMath();
+        }
+    </script>
+</body>
+</html>
+
