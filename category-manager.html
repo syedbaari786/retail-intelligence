@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tool 2: Category Manager Workflow Console</title>
+    <script src="https://jsdelivr.net"></script>
+    <style>
+        :root {
+            --bg-main: #0B0F19;
+            --bg-card: #111827;
+            --border: #1F2937;
+            --text-primary: #F9FAFB;
+            --text-muted: #9CA3AF;
+            --brand-blue: #2563EB;
+            --brand-hover: #1D4ED8;
+            --metric-red: #EF4444;
+            --metric-green: #10B981;
+            --alert-bg-red: rgba(239, 68, 68, 0.07);
+            --alert-bg-green: rgba(16, 185, 129, 0.07);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: monospace; }
+        body { background-color: var(--bg-main); color: var(--text-primary); padding: 2rem; min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; }
+        header { border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .console-container { border: 1px solid var(--border); background-color: var(--bg-card); border-radius: 8px; padding: 2rem; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        .meta-strip { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-muted); border-bottom: 1px dashed var(--border); padding-bottom: 0.75rem; margin-bottom: 1.5rem; }
+        
+        .progress-section { display: flex; flex-direction: column; gap: 1.25rem; margin-bottom: 1.5rem; }
+        .progress-row { display: grid; grid-template-columns: 220px 1fr 120px; align-items: center; gap: 1.5rem; }
+        .progress-label { font-size: 0.85rem; font-weight: bold; }
+        .progress-bar-container { background-color: rgba(255,255,255,0.05); height: 10px; border-radius: 2px; overflow: hidden; position: relative; }
+        .progress-bar { height: 100%; width: 0%; transition: width 0.15s ease, background-color 0.15s ease; }
+        .progress-value { font-size: 0.9rem; font-weight: 700; text-align: right; }
+        
+        .alert-card { border-radius: 6px; padding: 1.5rem; margin-bottom: 1.5rem; transition: background-color 0.2s ease, border-color 0.2s ease; }
+        .alert-card.disconnect { background-color: var(--alert-bg-red); border: 1px solid rgba(239, 68, 68, 0.3); }
+        .alert-card.stable { background-color: var(--alert-bg-green); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .alert-title { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 0.5rem; }
+        
+        .alert-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 1rem; font-size: 0.85rem; border-bottom: 1px dashed rgba(255,255,255,0.07); padding-bottom: 0.75rem; }
+        .ledger-lines { font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.25rem; }
+        
+        .financial-card { border-radius: 4px; padding: 1rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; font-weight: bold; }
+        .financial-card.risk { background-color: rgba(239, 68, 68, 0.15); color: #FCA5A5; border: 1px dashed var(--metric-red); }
+        .financial-card.optimized { background-color: rgba(16, 185, 129, 0.15); color: #6EE7B7; border: 1px dashed var(--metric-green); }
+
+        .tech-audit { margin-bottom: 1.5rem; }
+        .toggle-log-btn { background: none; border: none; color: var(--text-muted); font-size: 0.8rem; cursor: pointer; text-decoration: underline; display: flex; align-items: center; gap: 0.25rem; }
+        .terminal-log { background-color: rgba(0,0,0,0.4); border: 1px solid var(--border); padding: 1rem; border-radius: 4px; font-size: 0.75rem; color: #84CC16; line-height: 1.5; margin-top: 0.5rem; display: none; overflow-x: auto; }
+
+        .controls-panel { background-color: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 6px; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .slider-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+        .slider-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .slider-label { font-size: 0.8rem; color: var(--text-muted); display: flex; justify-content: space-between; }
+        input[type=range] { width: 100%; accent-color: var(--brand-blue); cursor: pointer; }
+
+        .inject-btn { background-color: var(--brand-blue); color: var(--text-primary); border: none; padding: 0.85rem 1.5rem; font-size: 0.9rem; font-weight: 600; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; text-transform: uppercase; letter-spacing: 0.02em; }
+        .inject-btn:hover { background-color: var(--brand-hover); }
+        .payload-console { margin-top: 1rem; background-color: #05070F; border: 1px solid #1E293B; border-radius: 4px; padding: 1rem; font-size: 0.75rem; color: #38BDF8; display: none; white-space: pre-wrap; }
+        footer { border-top: 1px solid var(--border); padding-top: 1rem; font-size: 0.75rem; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+    <div class="console-container">
+        <header>
+            <div><strong>TOOL 2 // MODULE 1: INTELLIGENT SHELF VELOCITY ENGINE</strong></div>
+            <div style="color:var(--text-muted); font-size:0.85rem;">Category Manager Workflow Console</div>
+        </header>
+
+        <div class="meta-strip">
+            <div>SKU: #44021 [Premium Dairy]</div>
+            <div>Location: Dubai Marina Branch</div>
+            <div>Context Boundary: Single-Store Local Operational Snapshot</div>
+        </div>
+
+        <!-- 1. PROGRESS BARS COMPONENT -->
+        <div class="progress-section">
+            <!-- ROW 1: TRIGGER POINT -->
+            <div class="progress-row">
+                <div class="progress-label" style="color: var(--metric-red);">Trigger Point (ERP Baseline):</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="bar-erp-trigger" style="background-color: var(--metric-red); width: 14%;"></div>
+                </div>
+                <div class="progress-value" id="val-erp-trigger">70 U</div>
+            </div>
+            <div class="progress-row" style="margin-top:-0.75rem;">
+                <div class="progress-label" style="color: var(--metric-green);">Trigger Point (Overlay Prop):</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="bar-overlay-trigger" style="background-color: var(--metric-green);"></div>
+                </div>
+                <div class="progress-value" id="val-overlay-trigger">0 U</div>
+            </div>
+
+            <!-- ROW 2: RUN-OUT WINDOW -->
+            <div class="progress-row" style="margin-top:0.5rem;">
+                <div class="progress-label" style="color: var(--metric-red);">Run-Out Window (ERP Baseline):</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="bar-erp-runout" style="background-color: var(--metric-red);"></div>
+                </div>
+                <div class="progress-value" id="val-erp-runout">0 Days</div>
+            </div>
+            <div class="progress-row" style="margin-top:-0.75rem;">
+                <div class="progress-label" style="color: var(--metric-green);">Run-Out Window (Overlay View):</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="bar-overlay-runout" style="background-color: var(--metric-green);"></div>
+                </div>
+                <div class="progress-value" id="val-overlay-runout">0 Days</div>
+            </div>
+        </div>
+
+        <!-- 2. SYSTEM STATE EXCEPTION CARD -->
+        <div class="alert-card" id="state-card">
+            <div class="alert-title" id="state-title"></div>
+            
+            <div class="alert-fields">
+                <div>ERP Expected Lead Time: <strong>2 Days</strong></div>
+                <div>Actual Fulfillment Cycle: <strong id="field-actual-cycle">0 Days</strong></div>
+            </div>
+
+            <div class="ledger-lines" id="math-ledger"></div>
+
+            <div class="financial-card" id="financial-readout"></div>
+        </div>
+
+        <!-- 3. TECH AUDIT BLOCK -->
+        <div class="tech-audit">
+            <button class="toggle-log-btn" onclick="toggleLog()">
+                <i data-lucide="terminal" style="width:12px; height:12px;"></i>
+                [▸ View Milestone Triggers]
+            </button>
+            <div class="terminal-log" id="log-block">
+                [SYSTEM LOG // ASYNCHRONOUS PO MONITORING ACTIVATED]<br>
+                2026-10-19T06:00:00Z - ERP Scheduled Order Pipeline scanned. Expected arrival set to standard parameter: 2 Days.<br>
+                2026-10-19T08:15:22Z - Live Telemetry Sweep: Open ASN (Advanced Shipping Notice) transport delays detected at Jebel Ali port.<br>
+                2026-10-19T12:00:00Z - Dynamic Overlay calculated fulfillment exception window adjustment. Safety buffer metrics re-routed.<br>
+                2026-10-19T14:35:10Z - Status: Core parameters isolated. Active workflow simulation loaded to local UI boundary.
+            </div>
+        </div>
+
+        <!-- 4. CONTROLS PANEL SLIDERS -->
+        <div class="controls-panel">
+            <div class="slider-row">
+                <div class="slider-group">
+                    <div class="slider-label"><span>SAFETY STOCK BUFFER</span><span id="label-safety">90 U</span></div>
+                    <input type="range" id="slide-safety" min="10" max="250" value="90">
+                </div>
+                <div class="slider-group">
