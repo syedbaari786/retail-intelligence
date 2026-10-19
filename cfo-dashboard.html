@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tool 1: CFO Executive Dashboard</title>
+    <script src="https://jsdelivr.net"></script>
+    <style>
+        :root {
+            --bg-main: #0B0F19;
+            --bg-card: #111827;
+            --border: #1F2937;
+            --text-primary: #F9FAFB;
+            --text-muted: #9CA3AF;
+            --brand-blue: #2563EB;
+            --metric-red: #EF4444;
+            --metric-green: #10B981;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: monospace; }
+        body { background-color: var(--bg-main); color: var(--text-primary); padding: 2rem; min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between; }
+        header { border-bottom: 1px solid var(--border); padding-bottom: 1rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .grid-top { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+        .card { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; padding: 1.5rem; }
+        .card-title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.05em; }
+        .card-value { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .card-subtext { color: var(--text-muted); font-size: 0.75rem; line-height: 1.4; }
+        .controls-panel { background-color: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; padding: 1.5rem; margin-bottom: 2rem; }
+        .slider-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+        .slider-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .slider-label { font-size: 0.8rem; color: var(--text-muted); display: flex; justify-content: space-between; }
+        input[type=range] { width: 100%; accent-color: var(--brand-blue); cursor: pointer; }
+        .blueprint-btn { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 0.5rem 1rem; font-size: 0.8rem; cursor: pointer; border-radius: 4px; text-transform: uppercase; display: inline-flex; align-items: center; gap: 0.5rem; }
+        .blueprint-btn:hover { border-color: #374151; color: var(--text-primary); }
+        .blueprint-content { margin-top: 1rem; background-color: rgba(0,0,0,0.3); border: 1px solid var(--border); padding: 1rem; border-radius: 4px; font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); display: none; }
+        footer { border-top: 1px solid var(--border); padding-top: 1rem; margin-top: 2rem; font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between; }
+    </style>
+</head>
+<body>
+    <div>
+        <header>
+            <div><strong>TOOL 1 // MODULE 1: INTELLIGENT SHELF VELOCITY ENGINE</strong></div>
+            <div style="color:var(--text-muted);">CFO Executive Exposure Dashboard</div>
+        </header>
+
+        <div class="grid-top">
+            <div class="card" style="border-top: 3px solid var(--metric-red);">
+                <div class="card-title" style="color: var(--metric-red);">CAPITAL LEAK (Annual)</div>
+                <div class="card-value" id="capital-leak">0.00 AED</div>
+                <div class="card-subtext">Annual revenue completely lost due to the current system's calendar-average blind spot.</div>
+            </div>
+            <div class="card" style="border-top: 3px solid var(--metric-green);">
+                <div class="card-title" style="color: var(--metric-green);">RECOVERED MARGIN (Annual)</div>
+                <div class="card-value" id="recovered-margin">0.00 AED</div>
+                <div class="card-subtext">Annual margin reclaimed by plugging in Module 1: Intelligent Shelf Velocity Engine to make informed optimization decisions.</div>
+            </div>
+        </div>
+
+        <div class="controls-panel">
+            <div class="slider-row">
+                <div class="slider-group">
+                    <div class="slider-label"><span>STORES (Baseline)</span><span id="val-stores">50</span></div>
+                    <input type="range" id="slide-stores" min="1" max="250" value="50">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-label"><span>SKUS PER STORE</span><span id="val-skus">150</span></div>
+                    <input type="range" id="slide-skus" min="10" max="1000" value="150">
+                </div>
+                <div class="slider-group">
+                    <div class="slider-label"><span>SHELF GAP DAYS</span><span id="val-gap">8</span></div>
+                    <input type="range" id="slide-gap" min="1" max="30" value="8">
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <button class="blueprint-btn" onclick="toggleBlueprint()">
+                <i data-lucide="binary" style="width:14px; height:14px;"></i>
+                View Calculation Blueprint
+            </button>
+            <div class="blueprint-content" id="blueprint-block"></div>
+        </div>
+    </div>
+
+    <footer>
+        <div>Currency Baseline: AED (Unpadded Engine Evaluation)</div>
+        <div>Evaluation Window: 12-Month Corporate Exposure Horizon</div>
+    </footer>
+
+    <script>
+        const ASP = 15;
+        const GPM = 0.30;
+        const AVG_VELOCITY = 3;
+        const HIGH_VELOCITY_SEGMENT = 0.30;
+
+        function updateMath() {
+            const stores = parseInt(document.getElementById('slide-stores').value);
+            const skus = parseInt(document.getElementById('slide-skus').value);
+            const gapDays = parseInt(document.getElementById('slide-gap').value);
+
+            document.getElementById('val-stores').innerText = stores;
+            document.getElementById('val-skus').innerText = skus;
+            document.getElementById('val-gap').innerText = gapDays;
+
+            const targetPortfolio = stores * skus * HIGH_VELOCITY_SEGMENT;
+            const annualLostUnits = targetPortfolio * AVG_VELOCITY * gapDays;
+            
+            const capitalLeak = annualLostUnits * ASP;
+            const recoveredMargin = annualLostUnits * ASP * GPM;
+
+            document.getElementById('capital-leak').innerText = capitalLeak.toLocaleString('en-AE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' AED';
+            document.getElementById('recovered-margin').innerText = recoveredMargin.toLocaleString('en-AE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' AED';
+
+            document.getElementById('blueprint-block').innerHTML = `
+                [AUDIT STATEMENT: UNPADDED PORTFOLIO MULTIPLIERS]<br>
+                &bull; Total High-Velocity SKU Focus Cluster: (${stores} Stores &times; ${skus} SKUs &times; ${(HIGH_VELOCITY_SEGMENT*100)}%) = ${targetPortfolio.toFixed(0)} High-Risk Endpoints.<br>
+                &bull; Total Annual Volumetric Deficit: ${targetPortfolio.toFixed(0)} Endpoints &times; ${AVG_VELOCITY} Units/Day &times; ${gapDays} Days Gap = ${annualLostUnits.toLocaleString()} Lost Units/Year.<br>
+                &bull; Capital Leak Base Formula: ${annualLostUnits.toLocaleString()} Units &times; ${ASP} AED Retail Price = ${capitalLeak.toLocaleString()} AED.<br>
+                &bull; Recovered Margin Base Formula: ${annualLostUnits.toLocaleString()} Units &times; ${ASP} AED &times; ${(GPM*100)}% Gross Margin = ${recoveredMargin.toLocaleString()} AED.
+            `;
+        }
+
+        function toggleBlueprint() {
+            const block = document.getElementById('blueprint-block');
+            block.style.display = block.style.display === 'block' ? 'none' : 'block';
+        }
+
+        document.getElementById('slide-stores').addEventListener('input', updateMath);
+        document.getElementById('slide-skus').addEventListener('input', updateMath);
+        document.getElementById('slide-gap').addEventListener('input', updateMath);
+
+        lucide.createIcons();
+        updateMath();
+    </script>
+</body>
+</html>
