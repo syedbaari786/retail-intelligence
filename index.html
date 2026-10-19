@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modular Retail Intelligence Platform | Launchpad</title>
+    <script src="https://jsdelivr.net"></script>
+    <style>
+        :root {
+            --bg-main: #0B0F19;
+            --bg-card: #111827;
+            --border: #1F2937;
+            --text-primary: #F9FAFB;
+            --text-muted: #9CA3AF;
+            --brand-blue: #2563EB;
+            --brand-hover: #1D4ED8;
+            --accent-glow: rgba(37, 99, 235, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 2rem;
+        }
+
+        header {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto 3rem auto;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .brand-badge {
+            background-color: var(--border);
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        main {
+            max-width: 1200px;
+            width: 100%;
+            margin: auto;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .hero {
+            margin-bottom: 4rem;
+            max-width: 700px;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+        }
+
+        .hero p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .module-section {
+            border: 1px solid var(--border);
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+
+        .module-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: var(--brand-blue);
+        }
+
+        .module-tag {
+            color: var(--brand-blue);
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .module-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.75rem;
+        }
+
+        .module-desc {
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.5;
+            max-width: 800px;
+            margin-bottom: 2.5rem;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 2rem;
+        }
+
+        .tool-card {
+            border: 1px solid var(--border);
+            background-color: rgba(255, 255, 255, 0.02);
+            border-radius: 6px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .tool-card:hover {
+            border-color: #374151;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .tool-meta {
+            margin-bottom: 2rem;
+        }
+
+        .tool-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tool-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .launch-btn {
+            background-color: var(--brand-blue);
+            color: var(--text-primary);
+            border: none;
+            padding: 0.85rem 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            transition: background-color 0.15s ease;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .launch-btn:hover {
+            background-color: var(--brand-hover);
+        }
+
+        .roadmap-preview {
+            margin-top: 3rem;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .roadmap-card {
+            border: 1px dashed var(--border);
+            border-radius: 6px;
+            padding: 1.25rem;
+        }
+
+        .roadmap-tag {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+            display: block;
+        }
+
+        .roadmap-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        footer {
+            max-width: 1200px;
+            width: 100%;
+            margin: 4rem auto 0 auto;
+            border-top: 1px solid var(--border);
+            padding-top: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand-title">
+            <i data-lucide="layers" style="color:#2563EB; width:20px; height:20px;"></i>
+            Modular Retail Intelligence Platform
+        </div>
+        <div class="brand-badge">Enterprise Overlay v1.4.0</div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>Decoupled Strategic Dashboards</h1>
+            <p>A non-invasive parameter overlay sitting on top of existing UAE ERP procurement systems. Bypasses static calendar averages, processes live telemetry streams, and pushes optimized parameters directly back into the ERP procurement queue.</p>
+        </section>
+
+        <!-- ACTIVE LAYER: MODULE 1 -->
+        <section class="module-section">
+            <span class="module-tag">Active Layer</span>
+            <h2 class="module-title">Module 1: Intelligent Shelf Velocity Engine</h2>
+            <p class="module-desc">Listens directly to localized floor inventory parameters and real-time transaction velocities. Quantifies the precision gaps left by legacy enterprise batch jobs and isolates immediate margin risk exposure.</p>
+            
+            <div class="tools-grid">
+                <!-- TOOL 1 CONTAINER LINK -->
+                <div class="tool-card">
+                    <div class="tool-meta">
+                        <h3 class="tool-name">
+                            <i data-lucide="bar-chart-3" style="color:#2563EB; width:18px; height:18px;"></i>
+                            CFO Executive Dashboard
+                        </h3>
+                        <p class="tool-desc">Macro-level annualized strategic view evaluated completely in AED currency. Aggregates multi-store portfolio exposure, evaluates global capital leakage caused by legacy blind spots, and provides baseline financial calculations for platform ROI justification.</p>
+                    </div>
+                    <!-- Place the link to your hosted Tool 1 HTML here -->
+                    <a href="cfo-dashboard.html" target="_blank" class="launch-btn">
+                        Launch Tool 1 Console 
+                        <i data-lucide="arrow-up-right" style="width:16px; height:16px;"></i>
+                    </a>
+                </div>
+
+                <!-- TOOL 2 CONTAINER LINK -->
+                <div class="tool-card">
+                    <div class="tool-meta">
+                        <h3 class="tool-name">
+                            <i data-lucide="sliders" style="color:#2563EB; width:18px; height:18px;"></i>
+                            Category Manager Workflow Console
+                        </h3>
+                        <p class="tool-desc">Micro-level operational workspace tracking isolated product snapshots (e.g., Dubai Marina SKU branches). Audits true daily off-take against vendor logistics variance, renders integer day-based runway tracking, and outputs ready-to-inject JSON parameter overrides.</p>
+                    </div>
+                    <!-- Place the link to your hosted Tool 2 HTML here -->
+                    <a href="category-manager.html" target="_blank" class="launch-btn">
